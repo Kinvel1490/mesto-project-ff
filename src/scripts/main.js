@@ -60,6 +60,8 @@ function handleMestoFormSubmit (e){
 }
 
 function showImage (e) {
-    (modalImage.src = e.target.src) && 
-        openPopUp(imagePopUp) 
+    const alt = e.target.alt || e.target.closest('.card').querySelector('.card__title').textContent;
+    modalImage.alt = alt;
+    document.querySelector('.popup__caption').textContent = alt;
+    (modalImage.src = e.target.src) && openPopUp(imagePopUp) 
 }
