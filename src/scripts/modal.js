@@ -9,8 +9,8 @@ function openPopUp (element) {
 }
 
 function closeOnEsc (e) {
-    const popUp = document.querySelector('.popup_is-opened')
     if(e.key == 'Escape'){
+        const popUp = document.querySelector('.popup_is-opened')
         closePopUp(popUp)
     }
 }

@@ -13,6 +13,7 @@ const profileName = document.querySelector('.profile__title')
 const profileOccupation = document.querySelector('.profile__description')
 const profileForm = document.forms['edit-profile']
 const mestoForm = document.forms['new-place']
+const caption = document.querySelector('.popup__caption')
 
 // @todo: Функция создания карточки
 
@@ -62,6 +63,6 @@ function handleMestoFormSubmit (e){
 function showImage (e) {
     const alt = e.target.alt || e.target.closest('.card').querySelector('.card__title').textContent;
     modalImage.alt = alt;
-    document.querySelector('.popup__caption').textContent = alt;
+    caption.textContent = alt;
     (modalImage.src = e.target.src) && openPopUp(imagePopUp) 
 }
