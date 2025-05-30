@@ -26,6 +26,7 @@ const validationConfig = {
   inputErrorClass: 'popup__input_type_error',
   errorClass: 'popup__error_visible'
 }
+let userID = ''
 // @todo: Функция создания карточки
 
 // @todo: Вывести карточки на страницу
@@ -33,6 +34,7 @@ const validationConfig = {
 Promise.all ([getUser(), getCards()]).then(results=>{
     if(results[0]){
         setUserData(results[0])
+        userID = results[0]._id
     }
     if(results[1]){
         results[1].forEach(card=>{
@@ -61,8 +63,6 @@ function handleProfileButton () {
 
 function hanleAddProfile () {
     openPopUp(addPopUp)
-    clearValidation(mestoForm, validationConfig)
-    mestoForm.reset()
 }
 
 function handleAvatar (e) {
@@ -105,9 +105,10 @@ function handleMestoFormSubmit (e){
     sbmBtn.textContent = 'Сохранение...'
     sendCard(card).then(res=>{
         if(res){
-            cardList.prepend(createCard(res, deleteCard, likeCard, showImage, true))
+            cardList.prepend(createCard(res, deleteCard, likeCard, showImage, userID))
             closePopUp(addPopUp)
-            clearValidation(addPopUp.querySelector('.popup__form'), validationConfig)
+            clearValidation(mestoForm, validationConfig)
+            mestoForm.reset()
         }
     }).catch((err) => {
         console.log(err); // выводим ошибку в консоль
