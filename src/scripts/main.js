@@ -18,7 +18,14 @@ const profileForm = document.forms['edit-profile']
 const mestoForm = document.forms['new-place']
 const avatarForm = document.forms['new-avatar']
 const caption = document.querySelector('.popup__caption')
-
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+}
 // @todo: Функция создания карточки
 
 // @todo: Вывести карточки на страницу
@@ -29,10 +36,11 @@ Promise.all ([getUser(), getCards()]).then(results=>{
     }
     if(results[1]){
         results[1].forEach(card=>{
-            const isOwner = results[0]._id === card.owner._id ? true : false
-            cardList.append(createCard(card, deleteCard, likeCard, showImage, isOwner))
+            cardList.append(createCard(card, deleteCard, likeCard, showImage, results[0]._id))
         })
     }
+}).catch((err) => {
+    console.log(err); // выводим ошибку в консоль
 })
 
 profileButton.addEventListener('click', handleProfileButton)
@@ -53,26 +61,20 @@ function handleProfileButton () {
 
 function hanleAddProfile () {
     openPopUp(addPopUp)
+    clearValidation(mestoForm, validationConfig)
+    mestoForm.reset()
 }
 
 function handleAvatar (e) {
     openPopUp(avatarPopUp)
+    clearValidation(avatarForm, validationConfig)
+    avatarForm.reset()
 }
 
 function handlePopUpClose (e) {
     if(!(e.target.classList.contains('popup') || e.target.classList.contains('popup__close'))){return}
     const popupElement = e.target.closest('.popup')
     closePopUp(popupElement)
-    const form = popupElement.querySelector('.popup__form')
-    if(form){
-        document.forms[form.getAttribute('name')].reset()
-    }
-    clearValidation(popupElement.querySelector('.popup__form'), {
-        inactiveButtonClass: 'popup__button_disabled',
-        inputErrorClass: 'popup__input_type_error',
-        errorClass: 'popup__error_visible',
-        submitButtonSelector: '.popup__button',
-    })
 }
 
 function handleProfileFormSubmit (e){
@@ -83,14 +85,13 @@ function handleProfileFormSubmit (e){
     .then(res=>{
         profileName.textContent = res.name
         profileOccupation.textContent = res.about
-        sbmBtn.textContent = "Сохранить"
         closePopUp(editPopUp)
-        clearValidation(editPopUp.querySelector('.popup__form'), {
-            inactiveButtonClass: 'popup__button_disabled',
-            inputErrorClass: 'popup__input_type_error',
-            errorClass: 'popup__error_visible',
-            submitButtonSelector: '.popup__button',
-        } )
+        clearValidation(editPopUp.querySelector('.popup__form'), validationConfig )
+    }).catch((err) => {
+        console.log(err); // выводим ошибку в консоль
+    })
+    .finally(()=>{
+        sbmBtn.textContent = "Сохранить"
     })
 }
 
@@ -100,39 +101,34 @@ function handleMestoFormSubmit (e){
         name: e.target['place-name'].value,
         link: e.target['link'].value
     }
-    const sbmtBtn = e.target.querySelector('[type="submit"]')
-    sbmtBtn.textContent = 'Сохранение...'
+    const sbmBtn = e.target.querySelector('[type="submit"]')
+    sbmBtn.textContent = 'Сохранение...'
     sendCard(card).then(res=>{
         if(res){
             cardList.prepend(createCard(res, deleteCard, likeCard, showImage, true))
-            sbmtBtn.textContent = 'Сохранить'
             closePopUp(addPopUp)
-            clearValidation(addPopUp.querySelector('.popup__form'), {
-                inactiveButtonClass: 'popup__button_disabled',
-                inputErrorClass: 'popup__input_type_error',
-                errorClass: 'popup__error_visible',
-                submitButtonSelector: '.popup__button',
-            } )
+            clearValidation(addPopUp.querySelector('.popup__form'), validationConfig)
         }
+    }).catch((err) => {
+        console.log(err); // выводим ошибку в консоль
+    }).finally(()=>{
+        sbmBtn.textContent = "Сохранить"
     })
 }
 
 function handleAvatarSubmit (e){
     e.preventDefault()
-    const sbmtBtn = e.target.querySelector('[type="submit"]')
-    sbmtBtn.textContent = 'Сохранение...'
+    const sbmBtn = e.target.querySelector('[type="submit"]')
+    sbmBtn.textContent = 'Сохранение...'
     changeAvatar(e.target['avatar_link'].value).then(res=>{
         if(res){
             profileAvatar.style.backgroundImage = `url(${res.avatar})`
             closePopUp(avatarPopUp)
-            clearValidation(popupElement.querySelector('.popup__form'), {
-                inactiveButtonClass: 'popup__button_disabled',
-                inputErrorClass: 'popup__input_type_error',
-                errorClass: 'popup__error_visible',
-                submitButtonSelector: '.popup__button',
-            })
-            sbmtBtn.textContent = 'Сохранить'
         }
+    }).catch((err) => {
+        console.log(err); // выводим ошибку в консоль
+    }).finally(()=>{
+        sbmBtn.textContent = "Сохранить"
     })
 }
 
@@ -149,11 +145,4 @@ function setUserData (user) {
     profileOccupation.textContent = user.about
 }
 
-enableValidation({
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
-}); 
+enableValidation(validationConfig); 

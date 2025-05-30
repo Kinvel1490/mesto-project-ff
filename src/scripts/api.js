@@ -3,114 +3,87 @@ const config = {
   headers: {
     authorization: '5f80f61b-c737-4a1a-9ed2-65ea2c8c84f5',
     'Content-Type': 'application/json'
-  }
+  },
+  base: 'https://nomoreparties.co/v1/wff-cohort-39'
 }
 
 
-async function getCards () {
-    return fetch('https://nomoreparties.co/v1/wff-cohort-39/cards', config)
+function getCards () {
+    return fetch(`${config.base}/cards`, config)
         .then(res => {
-            if (res.ok) {
-                return res.json();
-            }
-            return Promise.reject(`Ошибка: ${res.status}`)
-        }).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+            return checkPromiseStatus(res)
+        })
 }
 
-async function getUser () {
-    return fetch('https://nomoreparties.co/v1/wff-cohort-39/users/me ', config)
+function getUser () {
+    return fetch(`${config.base}/users/me`, config)
     .then(
         res => {
-            if (res.ok) {
-                return res.json();
-            }
-            return Promise.reject(`Ошибка: ${res.status}`)
+            return checkPromiseStatus(res)
         }
-    ).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+    )
 }
 
-async function sendCard (card) {
+function sendCard (card) {
     config.method = 'POST'
     config.body = JSON.stringify({
         name: card.name,
         link: card.link
     })
-    return fetch('https://nomoreparties.co/v1/wff-cohort-39/cards ', config)
+    return fetch(`${config.base}/cards`, config)
     .then(
         res => {
-            if (res.ok) {
-                return res.json();
-            }
-            return Promise.reject(`Ошибка: ${res.status}`)
+            return checkPromiseStatus(res)
         }
-    ).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+    )
 }
 
-async function removeCard (cardId) {
+function removeCard (cardId) {
     config.method = 'DELETE'
-    return fetch(`https://nomoreparties.co/v1/wff-cohort-39/cards/${cardId}`, config)
+    return fetch(`${config.base}/cards/${cardId}`, config)
     .then(res=>{
-        if (res.ok) {
-            return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`)
-    }).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+        return checkPromiseStatus(res)
+    })
 }
 
-async function patchUser (name, about) {
+function patchUser (name, about) {
     config.method = 'PATCH'
     config.body = JSON.stringify({
         name: name,
         about: about
     })
-    return fetch('https://nomoreparties.co/v1/wff-cohort-39/users/me', config)
+    return fetch(`${config.base}/users/me`, config)
     .then(res=>{
-        if (res.ok) {
-            return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`)
-    }).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+        return checkPromiseStatus(res)
+    })
 }
 
-async function toggleLikes (sendMethod, cardId) {
+function toggleLikes (sendMethod, cardId) {
     config.method = sendMethod.toUpperCase()
-    return fetch(`https://nomoreparties.co/v1/wff-cohort-39/cards/likes/${cardId}`, config)
+    return fetch(`${config.base}/cards/likes/${cardId}`, config)
     .then(res=>{
-        if (res.ok) {
-            return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`)
-    }).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+        return checkPromiseStatus(res)
+    })
 }
 
-async function changeAvatar(avatarURL) {
+function changeAvatar(avatarURL) {
     config.method = 'PATCH'
     config.body = JSON.stringify({
         avatar: avatarURL
     })
-    return fetch(`https://nomoreparties.co/v1/wff-cohort-39/users/me/avatar`, config)
+    return fetch(`${config.base}/users/me/avatar`, config)
     .then(res=>{
-        if (res.ok) {
-            return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`)
-    }).catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-    }); 
+        return checkPromiseStatus(res)
+    })
 }
 
+function checkPromiseStatus (prom) {
+    if (prom.ok) {
+        return prom.json();
+    } else {
+        return Promise.reject(`Ошибка: ${res.status}`)
+    }
+}
 
 
 export {getCards, getUser, patchUser, sendCard, removeCard, toggleLikes, changeAvatar}

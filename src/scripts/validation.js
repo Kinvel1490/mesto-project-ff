@@ -1,46 +1,42 @@
 function clearValidation (profileForm, validationConfig) {
-    const inputClass = validationConfig?.inputSelector ?? '.popup__input'
     if(!profileForm){return}
-    const formInputs = profileForm.querySelectorAll(inputClass)
+    const formInputs = profileForm.querySelectorAll(validationConfig.inputSelector)
     if(formInputs.length === 0){return}
-    const errorSpanClass = validationConfig.errorClass ? `.${validationConfig.errorClass}` : '.popup__error_visible'
-    const submitBtnClass = validationConfig?.submitButtonSelector ?? '.popup__button'
-    const btnDisableClass= validationConfig?.inactiveButtonClass ?? '.popup__button_disabled'
     if(formInputs.length > 0){
         for(let formInput of formInputs){
-            formInput.classList.remove('popup__input_type_error')
+            formInput.classList.remove(validationConfig.inputErrorClass)
         }
     }
-    let formErrorSpans = profileForm.querySelectorAll(errorSpanClass)
+    let formErrorSpans = profileForm.querySelectorAll(`.${validationConfig.errorClass}`)
     if(formErrorSpans.length > 0){
         for(let formErrorSpan of formErrorSpans){
-            formErrorSpan.classList.remove('popup__error_visible')
+            formErrorSpan.classList.remove(validationConfig.errorClass)
         }
     }
-    const formBtns = profileForm.querySelectorAll(submitBtnClass)
+    const formBtns = profileForm.querySelectorAll(validationConfig.submitButtonSelector)
     if(formBtns.length > 0){
         for(let formBtn of formBtns) {
-            formBtn.classList.add(btnDisableClass)
+            formBtn.classList.add(validationConfig.inactiveButtonClass)
         }
     }
 }
 
-function showInputError (form, input, errorMessage) {
+function showInputError (form, input, errorMessage, errorClasses) {
     const errorSpan = form.querySelector(`#${input.name}-error`)
-    errorSpan.classList.add('popup__error_visible')
-    form.querySelector(`[name="${input.name}"]`).classList.add('popup__input_type_error')
+    errorSpan.classList.add(errorClasses.errorClass)
+    form.querySelector(`[name="${input.name}"]`).classList.add(errorClasses.inputErrorClass)
     errorSpan.textContent = errorMessage
 }
 
-function hideInpputError (form, input) {
-    form.querySelector(`#${input.name}-error`).classList.remove('popup__error_visible')
-    form.querySelector(`[name="${input.name}"]`).classList.remove('popup__input_type_error')
+function hideInpputError (form, input, errorClasses) {
+    form.querySelector(`#${input.name}-error`).classList.remove(errorClasses.errorClass)
+    form.querySelector(`[name="${input.name}"]`).classList.remove(errorClasses.inputErrorClass)
 }
 
 function checkValidity (form, input, validationOptions) {
     const errorClasses = {
-        errorClass: validationOptions.errorClass ?? 'popup__error_visible',
-        inputErrorClass: validationOptions.inputErrorClass ?? 'popup__input_type_error'
+        errorClass: validationOptions.errorClass,
+        inputErrorClass: validationOptions.inputErrorClass
     }
     if(input.name === 'name' || input.name === 'place-name') {
         const regExp = /[^a-zа-яё^\s^-]/ig
@@ -73,17 +69,14 @@ function toggleButtonState (inputList, buttonElement, buttonInactiveClass) {
 }
 
 function setEventListeners (form, validationOptions) {
-    const inputClass = validationOptions.inputSelector || '.popup__input'
-    const inputList = Array.from(form.querySelectorAll(inputClass));
-    const buttonElementClass = validationOptions.submitButtonSelector ?? '.popup__button'
-    const buttonElement = form.querySelector(buttonElementClass)
-    const buttonInactiveClass = validationOptions.inactiveButtonClass ?? 'popup__button_disabled'
-    toggleButtonState(inputList, buttonElement, buttonInactiveClass);
-    const inputs = form.querySelectorAll('.popup__input')
+    const inputList = Array.from(form.querySelectorAll(validationOptions.inputSelector));
+    const buttonElement = form.querySelector(validationOptions.submitButtonSelector)
+    toggleButtonState(inputList, buttonElement, validationOptions.inactiveButtonClass);
+    const inputs = form.querySelectorAll(validationOptions.inputSelector)
     for(let input of inputs){
         input.addEventListener('input', ()=>{
             checkValidity(form, input, validationOptions)
-            toggleButtonState(inputList, buttonElement, buttonInactiveClass)
+            toggleButtonState(inputList, buttonElement, validationOptions.inactiveButtonClass)
         })
     }
 }
@@ -101,7 +94,7 @@ function enableValidation (options) {
         clearValidation(form, options)
     }
     document.addEventListener('click', e=>{
-        if(e.target.classList.contains(options.inactiveButtonClass || 'popup__button_disabled')){
+        if(e.target.classList.contains(options.inactiveButtonClass)){
             e.preventDefault()
         }
     })
